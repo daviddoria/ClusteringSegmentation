@@ -18,26 +18,24 @@
 #include <vtkExtractSelection.h>
 #include <vtkIdTypeArray.h>
 
-
-
 vtkStandardNewMacro(vtkClusteringSegmentation);
 
 int vtkClusteringSegmentation::RequestData(vtkInformation *vtkNotUsed(request),
                                              vtkInformationVector **inputVector,
                                              vtkInformationVector *outputVector)
 {
-  // get the info objects
+  // Get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // Get the input and ouptut
   vtkPolyData *input = vtkPolyData::SafeDownCast(
       inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkPolyData *output = vtkPolyData::SafeDownCast(
       outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  //decide on a reasonable e-sphere size
+  // Decide on a reasonable e-sphere size
   double bounds[6];
   input->GetBounds(bounds);
 
@@ -51,10 +49,10 @@ int vtkClusteringSegmentation::RequestData(vtkInformation *vtkNotUsed(request),
   double eRadius = minDim / 3.;
   std::cout << "eRadius: " << eRadius << std::endl;
 
-  //create a vector to keep track of the points that are already assigned to a superpoint
+  // Create a vector to keep track of the points that are already assigned to a superpoint
   std::vector<int> clusterLabels(input->GetNumberOfPoints(), -1);
 
-  //Create a kd tree
+  // Create a kd tree
   vtkSmartPointer<vtkKdTreePointLocator> kdTree =
     vtkSmartPointer<vtkKdTreePointLocator>::New();
   kdTree->SetDataSet(input);
@@ -69,7 +67,7 @@ int vtkClusteringSegmentation::RequestData(vtkInformation *vtkNotUsed(request),
       continue;
       }
 
-    //find all the points around the query point
+    // Find all the points around the query point
     vtkSmartPointer<vtkIdList> neighbors =
       vtkSmartPointer<vtkIdList>::New();
     kdTree->FindPointsWithinRadius(eRadius, pointID, neighbors);
@@ -84,14 +82,14 @@ int vtkClusteringSegmentation::RequestData(vtkInformation *vtkNotUsed(request),
         }
       }
 
-    //if no neighbors already had labels, assign this point to a new cluster
+    // If no neighbors already had labels, assign this point to a new cluster
     if(clusterLabels[pointID] == -1)
       {
       clusterLabels[pointID] = clusterID;
       }
 
 
-    //label all neighbors that are unlabeled the same as the current point
+    // Label all neighbors that are unlabeled the same as the current point
     for(vtkIdType n = 0; n < neighbors->GetNumberOfIds(); n++)
       {
       if(clusterLabels[neighbors->GetId(n)] == -1)
