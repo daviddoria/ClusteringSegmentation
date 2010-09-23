@@ -17,6 +17,7 @@ int main(int, char*[])
   vtkSmartPointer<vtkClusteringSegmentation> clusteringSegmentation =
     vtkSmartPointer<vtkClusteringSegmentation>::New();
   clusteringSegmentation->SetInputConnection(data->GetProducerPort());
+  clusteringSegmentation->SetUseAutoRadius(true);
   clusteringSegmentation->Update();
 
   vtkSmartPointer<vtkXMLPolyDataWriter> writer =

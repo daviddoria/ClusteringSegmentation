@@ -13,11 +13,22 @@ public:
 
   static vtkClusteringSegmentation *New();
 
+  vtkSetMacro(RBNNRadius, double);
+  vtkGetMacro(RBNNRadius, double);
+
+  vtkSetMacro(UseAutoRadius, bool);
+  vtkGetMacro(UseAutoRadius, bool);
+
 protected:
-  vtkClusteringSegmentation(){}
+  vtkClusteringSegmentation();
   ~vtkClusteringSegmentation(){}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+
+  bool UseAutoRadius;
+  double RBNNRadius;
+
+  double ComputeAutoRadius(vtkPolyData* data);
 
 private:
   vtkClusteringSegmentation(const vtkClusteringSegmentation&);  // Not implemented.

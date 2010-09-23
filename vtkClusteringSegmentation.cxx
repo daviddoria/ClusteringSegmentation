@@ -20,6 +20,25 @@
 
 vtkStandardNewMacro(vtkClusteringSegmentation);
 
+vtkClusteringSegmentation::vtkClusteringSegmentation()
+{
+  this->UseAutoRadius = true;
+}
+
+double vtkClusteringSegmentation::ComputeAutoRadius(vtkPolyData* data)
+{
+  double bounds[6];
+  data->GetBounds(bounds);
+
+  double delx = bounds[1] - bounds[0];
+  double dely = bounds[3] - bounds[2];
+  double delz = bounds[5] - bounds[4];
+  //std::cout << "delx: " << delx << " dely: " << dely << " delz: " << delz << std::endl;
+  double minDim = std::min(delx, std::min(dely,delz));
+
+  this->RBNNRadius = minDim / 10.;
+}
+
 int vtkClusteringSegmentation::RequestData(vtkInformation *vtkNotUsed(request),
                                              vtkInformationVector **inputVector,
                                              vtkInformationVector *outputVector)
@@ -35,19 +54,10 @@ int vtkClusteringSegmentation::RequestData(vtkInformation *vtkNotUsed(request),
   vtkPolyData *output = vtkPolyData::SafeDownCast(
       outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  // Decide on a reasonable e-sphere size
-  double bounds[6];
-  input->GetBounds(bounds);
-
-  double delx = bounds[1] - bounds[0];
-  double dely = bounds[3] - bounds[2];
-  double delz = bounds[5] - bounds[4];
-  std::cout << "delx: " << delx << " dely: " << dely << " delz: " << delz << std::endl;
-  double minDim = std::min(delx, std::min(dely,delz));
-
-  //double eRadius = minDim / 10.;
-  double eRadius = minDim / 3.;
-  std::cout << "eRadius: " << eRadius << std::endl;
+  if(this->UseAutoRadius)
+    {
+    this->ComputeAutoRadius(input);
+    }
 
   // Create a vector to keep track of the points that are already assigned to a superpoint
   std::vector<int> clusterLabels(input->GetNumberOfPoints(), -1);
@@ -70,7 +80,7 @@ int vtkClusteringSegmentation::RequestData(vtkInformation *vtkNotUsed(request),
     // Find all the points around the query point
     vtkSmartPointer<vtkIdList> neighbors =
       vtkSmartPointer<vtkIdList>::New();
-    kdTree->FindPointsWithinRadius(eRadius, pointID, neighbors);
+    kdTree->FindPointsWithinRadius(this->RBNNRadius, pointID, neighbors);
 
     // Label the point the same as its first neighbor with a label
     for(vtkIdType n = 0; n < neighbors->GetNumberOfIds(); n++)
