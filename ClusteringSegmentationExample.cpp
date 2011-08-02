@@ -24,21 +24,30 @@
 
 #include "vtkClusteringSegmentation.h"
 
+#include <sstream>
+
 int main(int argc, char*argv[])
 {
   // Verify arguments
-  if(argc < 3)
+  if(argc < 4)
     {
-    std::cerr << "Required: input.vtp output.vtp" << std::endl;
+    std::cerr << "Required: input.vtp radius output.vtp" << std::endl;
     return EXIT_FAILURE;
     }
   
   // Parse arguments
   std::string inputFileName = argv[1];
-  std::string outputFileName = argv[2];
+  
+  float radius = 1.0;
+  std::stringstream ss;
+  ss << argv[2];
+  ss >> radius;
+  
+  std::string outputFileName = argv[3];
   
   // Output arguments
   std::cout << "Input: " << inputFileName << std::endl;
+  std::cout << "Radius: " << radius << std::endl;
   std::cout << "Output: " << outputFileName << std::endl;
   
   vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
@@ -48,7 +57,8 @@ int main(int argc, char*argv[])
   vtkSmartPointer<vtkClusteringSegmentation> clusteringSegmentation =
     vtkSmartPointer<vtkClusteringSegmentation>::New();
   clusteringSegmentation->SetInputConnection(reader->GetOutputPort());
-  clusteringSegmentation->SetUseAutoRadius(true);
+  clusteringSegmentation->SetUseAutoRadius(false);
+  clusteringSegmentation->SetRBNNRadius(radius);
   clusteringSegmentation->Update();
 
   vtkSmartPointer<vtkXMLPolyDataWriter> writer =
