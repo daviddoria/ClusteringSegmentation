@@ -5,6 +5,8 @@ PROJECT(ClusteringSegmentation)
 FIND_PACKAGE(VTK REQUIRED)
 INCLUDE(${VTK_USE_FILE})
 
-ADD_EXECUTABLE(ClusteringSegmentation ClusteringSegmentation.cpp vtkClusteringSegmentation.cxx)
-TARGET_LINK_LIBRARIES(ClusteringSegmentation vtkHybrid vtkInfovis)
+ADD_EXECUTABLE(ClusteringSegmentationDemo ClusteringSegmentationDemo.cpp vtkClusteringSegmentation.cxx)
+TARGET_LINK_LIBRARIES(ClusteringSegmentationDemo ${VTK_LIBRARIES})
 
+ADD_EXECUTABLE(ClusteringSegmentationExample ClusteringSegmentationExample.cpp vtkClusteringSegmentation.cxx)
+TARGET_LINK_LIBRARIES(ClusteringSegmentationExample ${VTK_LIBRARIES})

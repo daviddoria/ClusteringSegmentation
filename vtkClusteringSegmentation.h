@@ -45,7 +45,10 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
+  // Attempt to determine the RBNN radius automatically.
   bool UseAutoRadius;
+  
+  // The radius used for the nearest neighbor lookups.
   double RBNNRadius;
 
   double ComputeAutoRadius(vtkPolyData* data);

@@ -45,6 +45,7 @@ vtkClusteringSegmentation::vtkClusteringSegmentation()
 
 double vtkClusteringSegmentation::ComputeAutoRadius(vtkPolyData* data)
 {
+  // This function sets the radius to 10% of the minimum dimension extent of the data.
   double bounds[6];
   data->GetBounds(bounds);
 
@@ -72,6 +73,7 @@ int vtkClusteringSegmentation::RequestData(vtkInformation *vtkNotUsed(request),
   vtkPolyData *output = vtkPolyData::SafeDownCast(
       outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  // Compute the radius automatically if the user has requested we do so.
   if(this->UseAutoRadius)
     {
     this->ComputeAutoRadius(input);
@@ -142,9 +144,9 @@ int vtkClusteringSegmentation::RequestData(vtkInformation *vtkNotUsed(request),
 
   clusterLabels = ReNumber(clusterLabels);
 
-  vtkSmartPointer<vtkIntArray> labelArray =
-    vtkSmartPointer<vtkIntArray>::New();
+  vtkSmartPointer<vtkIntArray> labelArray = vtkSmartPointer<vtkIntArray>::New();
   labelArray->SetNumberOfComponents(1);
+  labelArray->SetName("ClusterID");
 
   for(unsigned int i = 0; i < clusterLabels.size(); i++)
     {
